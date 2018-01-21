@@ -109,9 +109,10 @@ def df_full():
                                pd.NaT,
                                pd.Timestamp('20130103')]})
 
+
 def check_round_trip(df, engine=None, path=None,
-                            write_kwargs=None, read_kwargs=None,
-                            expected=None, check_names=True):
+                     write_kwargs=None, read_kwargs=None,
+                     expected=None, check_names=True):
 
     if write_kwargs is None:
         write_kwargs = {'compression': None}
@@ -176,6 +177,7 @@ def test_options_auto(df_compat, fp, pa):
     with pd.option_context('io.parquet.engine', 'auto'):
         check_round_trip(df_compat)
 
+
 def test_options_get_engine(fp, pa):
     assert isinstance(get_engine('pyarrow'), PyArrowImpl)
     assert isinstance(get_engine('fastparquet'), FastParquetImpl)
@@ -224,8 +226,6 @@ def test_cross_engine_fp_pa(df_cross_compat, pa, fp):
 
         result = read_parquet(path, engine=pa, columns=['a', 'd'])
         tm.assert_frame_equal(result, df[['a', 'd']])
-
-
 
 
 class Base(object):
@@ -289,7 +289,7 @@ class TestBasic(Base):
 
         expected = pd.DataFrame({'string': list('abc')})
         check_round_trip(df, engine, expected=expected,
-                              read_kwargs={'columns': ['string']})
+                         read_kwargs={'columns': ['string']})
 
     def test_write_index(self, engine):
         check_names = engine != 'fastparquet'
@@ -346,7 +346,8 @@ class TestBasic(Base):
             df.index = index
 
             check_round_trip(df, engine)
-            check_round_trip(df, engine, read_kwargs={'columns': ['A', 'B']}, expected=df[['A', 'B']])
+            check_round_trip(df, engine, read_kwargs={'columns': ['A', 'B']},
+                             expected=df[['A', 'B']])
 
 
 class TestParquetPyArrow(Base):
@@ -374,7 +375,7 @@ class TestParquetPyArrow(Base):
                                           tz='Europe/Brussels')
 
         check_round_trip(df, pa, expected=df[['string', 'int']],
-                              read_kwargs={'columns': ['string', 'int']})
+                         read_kwargs={'columns': ['string', 'int']})
 
     def test_duplicate_columns(self, pa):
         # not currently able to handle duplicate columns
@@ -416,7 +417,7 @@ class TestParquetPyArrow(Base):
     def test_s3_roundtrip(self, df_compat, s3_resource, pa):
         # GH #19134
         check_round_trip(df_compat, pa,
-                              path='s3://pandas-test/pyarrow.parquet')
+                         path='s3://pandas-test/pyarrow.parquet')
 
 
 class TestParquetFastParquet(Base):
@@ -479,4 +480,4 @@ class TestParquetFastParquet(Base):
     def test_s3_roundtrip(self, df_compat, s3_resource, fp):
         # GH #19134
         check_round_trip(df_compat, fp,
-                              path='s3://pandas-test/fastparquet.parquet')
+                         path='s3://pandas-test/fastparquet.parquet')
